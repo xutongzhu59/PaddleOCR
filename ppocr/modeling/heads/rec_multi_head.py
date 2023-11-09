@@ -63,6 +63,7 @@ class MultiHead(nn.Layer):
                 num_decoder_layers = gtc_args.get('num_decoder_layers', 4)
                 self.before_gtc = nn.Sequential(
                     nn.Flatten(2), FCTranspose(in_channels, nrtr_dim))
+                print(out_channels_list)
                 self.gtc_head = Transformer(
                     d_model=nrtr_dim,
                     nhead=nrtr_dim // 32,

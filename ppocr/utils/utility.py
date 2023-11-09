@@ -70,6 +70,12 @@ def get_image_file_list(img_file):
             if os.path.isfile(file_path) and _check_image_file(file_path):
                 imgs_lists.append(file_path)
     if len(imgs_lists) == 0:
+        for root, _, files in os.walk(img_file):
+            for file in files:
+                file_path = os.path.join(root, file)
+                if os.path.isfile(file_path) and _check_image_file(file_path):
+                    imgs_lists.append(file_path)
+    if len(imgs_lists) == 0:
         raise Exception("not found any img file in {}".format(img_file))
     imgs_lists = sorted(imgs_lists)
     return imgs_lists
