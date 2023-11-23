@@ -206,11 +206,11 @@ def main(args):
                 "points": np.array(dt_boxes[i]).astype(np.int32).tolist(),
             } for i in range(len(dt_boxes))]
             if len(imgs) > 1:
-                save_pred = os.path.basename(image_file) + '_' + str(
+                save_pred = image_file + '_' + str(
                     index) + "\t" + json.dumps(
                         res, ensure_ascii=False) + "\n"
             else:
-                save_pred = os.path.basename(image_file) + "\t" + json.dumps(
+                save_pred = image_file + "\t" + json.dumps(
                     res, ensure_ascii=False) + "\n"
             save_results.append(save_pred)
 
@@ -236,7 +236,7 @@ def main(args):
                     save_file = image_file
                 cv2.imwrite(
                     os.path.join(draw_img_save_dir,
-                                 os.path.basename(save_file)),
+                        os.path.dirname(image_file).replace('/', '_') + '_' +os.path.basename(save_file)),
                     draw_img[:, :, ::-1])
                 logger.debug("The visualized image saved in {}".format(
                     os.path.join(draw_img_save_dir, os.path.basename(

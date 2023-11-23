@@ -65,10 +65,11 @@ def get_image_file_list(img_file):
     if os.path.isfile(img_file) and _check_image_file(img_file):
         imgs_lists.append(img_file)
     elif os.path.isdir(img_file):
-        for single_file in os.listdir(img_file):
-            file_path = os.path.join(img_file, single_file)
-            if os.path.isfile(file_path) and _check_image_file(file_path):
-                imgs_lists.append(file_path)
+        for root, _, files in os.walk(img_file):
+            for file in files:
+                file_path = os.path.join(root, file)
+                if os.path.isfile(file_path) and _check_image_file(file_path):
+                    imgs_lists.append(file_path)
     if len(imgs_lists) == 0:
         raise Exception("not found any img file in {}".format(img_file))
     imgs_lists = sorted(imgs_lists)
