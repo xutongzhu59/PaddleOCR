@@ -114,14 +114,14 @@ class TextClassifier(object):
                 self.predictor.try_shrink_memory()
             cls_result = self.postprocess_op(prob_out)
             elapse += time.time() - starttime
-            os.makedirs(os.path.join(self.draw_img_save_dir, 'cls_vis'), exist_ok=True)
+            # os.makedirs(os.path.join(self.draw_img_save_dir, 'cls_vis'), exist_ok=True)
             for rno in range(len(cls_result)):
                 label, score = cls_result[rno]
                 cls_res[indices[beg_img_no + rno]] = [label, score]
-                draw_path = os.path.join(self.draw_img_save_dir, 'cls_vis',
-                                         str(beg_img_no + rno) + '_' + label + '_' + str(score) + '.png')
+                # draw_path = os.path.join(self.draw_img_save_dir, 'cls_vis',
+                #                          str(beg_img_no + rno) + '_' + label + '_' + str(score) + '.png')
                 # org = img_list[indices[beg_img_no + rno]].copy()
-                cv2.imwrite(draw_path.replace('.png', '_org.png'), img_list[indices[beg_img_no + rno]])
+                # cv2.imwrite(draw_path.replace('.png', '_org.png'), img_list[indices[beg_img_no + rno]])
                 # cv2.putText(org, label, (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.05, (255, 0, 0), 1)
                 if '180' in label and score > self.cls_thresh:
                     img_list[indices[beg_img_no + rno]] = cv2.rotate(
@@ -134,7 +134,7 @@ class TextClassifier(object):
                         img_list[indices[beg_img_no + rno]], cv2.ROTATE_90_COUNTERCLOCKWISE)
 
                 # draw = np.hstack([org, img_list[indices[beg_img_no + rno]]])
-                cv2.imwrite(draw_path, img_list[indices[beg_img_no + rno]])
+                # cv2.imwrite(draw_path, img_list[indices[beg_img_no + rno]])
         return img_list, cls_res, elapse
 
 
