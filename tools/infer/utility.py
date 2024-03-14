@@ -52,8 +52,9 @@ def init_args():
     parser.add_argument("--det_algorithm", type=str, default='DB')
     parser.add_argument("--det_model_dir", type=str)
     parser.add_argument("--det_limit_side_len", type=float, default=960)
-    parser.add_argument("--det_limit_type", type=str, default='max')
+    parser.add_argument("--det_limit_type", type=str, default='min')
     parser.add_argument("--det_box_type", type=str, default='quad')
+    parser.add_argument("--label_path", type=str)
 
     # DB parmas
     parser.add_argument("--det_db_thresh", type=float, default=0.3)
@@ -119,7 +120,7 @@ def init_args():
     parser.add_argument("--cls_image_shape", type=str, default="3, 48, 192")
     parser.add_argument("--label_list", type=list, default=['0', '180'])
     parser.add_argument("--cls_batch_num", type=int, default=6)
-    parser.add_argument("--cls_thresh", type=float, default=0.9)
+    parser.add_argument("--cls_thresh", type=float, default=0.85)
 
     parser.add_argument("--enable_mkldnn", type=str2bool, default=False)
     parser.add_argument("--cpu_threads", type=int, default=10)
@@ -343,10 +344,10 @@ def draw_e2e_res(dt_boxes, strs, img_path):
     return src_im
 
 
-def draw_text_det_res(dt_boxes, img):
+def draw_text_det_res(dt_boxes, img, color=(255, 255, 0), thickness=2):
     for box in dt_boxes:
         box = np.array(box).astype(np.int32).reshape(-1, 2)
-        cv2.polylines(img, [box], True, color=(255, 255, 0), thickness=2)
+        cv2.polylines(img, [box], True, color=color, thickness=thickness)
     return img
 
 

@@ -3,16 +3,16 @@ Global:
   epoch_num: 150
   log_smooth_window: 20
   print_batch_step: 10
-  save_model_dir: ./output/cls/v2/
+  save_model_dir: ./output3/cls/
   save_epoch_step: 10
   # evaluation is run every 5000 iterations after the 4000th iteration
   eval_batch_step: [0, 500]
   cal_metric_during_train: True
-  # pretrained_model: pretrain_models/ch_ppocr_mobile_v2.0_cls_train/best_accuracy
+  # pretrained_model: pretrain_models/ch_ppocr_mobile_v3=2.0_cls_train/best_accuracy
   pretrained_model: pretrain/ch_ppocr_mobile_v2.0_cls_train/best_accuracy
 #  pretrained_model: ./output/cls/mv3/best_accuracy
   checkpoints:
-  save_inference_dir: ./output/cls/v2/
+  save_inference_dir: ./output3/cls/
   use_visualdl: False
   infer_img: doc/imgs_words_en/word_10.png
   label_list: ['0','180']
@@ -54,9 +54,9 @@ Metric:
 Train:
   dataset:
     name: SimpleDataSet
-    data_dir: /data/parcel/annotations/train_data/cls
+    data_dir: /data/parcel/annotations/train_data_v3/cls
     label_file_list:
-      - /data/parcel/annotations/train_data/cls/train_phase_1+2_data_cls_labels.txt
+      - /data/parcel/annotations/train_data_v3/cls/train_fuzhou_sampled_p1_cls_labels.txt
     transforms:
       - DecodeImage: # load image
           img_mode: BGR
@@ -77,9 +77,9 @@ Train:
 Eval:
   dataset:
     name: SimpleDataSet
-    data_dir: /data/parcel/annotations/train_data/cls
+    data_dir: /data/parcel/annotations/train_data_v3/cls
     label_file_list:
-      - /data/parcel/annotations/train_data/cls/test_phase_1+2_data_cls_labels.txt
+      - /data/parcel/annotations/train_data_v3/cls/test_fuzhou_sampled_p1_cls_labels.txt
     transforms:
       - DecodeImage: # load image
           img_mode: BGR

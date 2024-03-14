@@ -26,11 +26,13 @@ import time
 import sys
 
 import tools.infer.utility as utility
+from PIL import Image, ImageDraw
 from ppocr.utils.logging import get_logger
 from ppocr.utils.utility import get_image_file_list, check_and_read
 from ppocr.data import create_operators, transform
 from ppocr.postprocess import build_post_process
 import json
+
 logger = get_logger()
 
 
@@ -81,7 +83,7 @@ class TextDetector(object):
                 'NormalizeImage': {
                     'std': [1.0, 1.0, 1.0],
                     'mean':
-                    [0.48109378172549, 0.45752457890196, 0.40787054090196],
+                        [0.48109378172549, 0.45752457890196, 0.40787054090196],
                     'scale': '1./255.',
                     'order': 'hwc'
                 }
@@ -297,6 +299,15 @@ if __name__ == "__main__":
         for i in range(2):
             res = text_detector(img)
 
+    # grab labels
+    # poly_labels = {}
+    # with open(args.label_path, 'r') as label_file:
+    #     labels = label_file.readlines()
+    #     for label in labels:
+    #         img_name = label.split('\t', 1)[0]
+    #         polygons = [labeled_text['points'] for labeled_text in json.loads(label.split('\t', 1)[1])]
+    #         poly_labels[img_name] = polygons
+
     save_results = []
     for idx, image_file in enumerate(image_file_list):
         img, flag_gif, flag_pdf = check_and_read(image_file)
@@ -320,7 +331,7 @@ if __name__ == "__main__":
             if len(imgs) > 1:
                 save_pred = os.path.basename(image_file) + '_' + str(
                     index) + "\t" + str(
-                        json.dumps([x.tolist() for x in dt_boxes])) + "\n"
+                    json.dumps([x.tolist() for x in dt_boxes])) + "\n"
             else:
                 save_pred = os.path.basename(image_file) + "\t" + str(
                     json.dumps([x.tolist() for x in dt_boxes])) + "\n"
@@ -334,6 +345,8 @@ if __name__ == "__main__":
                     idx, image_file, elapse))
 
             src_im = utility.draw_text_det_res(dt_boxes, img)
+            # im_label = poly_labels[os.path.basename(image_file)]
+            # src_im = utility.draw_text_det_res(im_label, src_im, (0,0,255), 1)
 
             if flag_gif:
                 save_file = image_file[:-3] + "png"

@@ -4,7 +4,7 @@ Global:
   epoch_num: 100
   log_smooth_window: 20
   print_batch_step: 10
-  save_model_dir: ./output/rec_v4
+  save_model_dir: ./output3/rec
   save_epoch_step: 10
   eval_batch_step:
   - 0
@@ -12,7 +12,7 @@ Global:
   cal_metric_during_train: true
   pretrained_model: pretrain/en_PP-OCRv4_rec_train/best_accuracy
   checkpoints: null
-  save_inference_dir: ./output/rec_v4
+  save_inference_dir: ./output3/rec
   use_visualdl: false
   infer_img: train_data/det/phase_1+2_data_det_images_test/phase_1_data/20230221_154751761/20230221142715284_215300_0004772005/TunnelCamera0409Large_0_0.jpg
   character_dict_path: ppocr/utils/en_dict.txt
@@ -75,7 +75,7 @@ Train:
     data_dir: ./train_data/
     ext_op_transform_idx: 1
     label_file_list:
-    - /data/parcel/annotations/train_data/rec/train_phase_1+2_data_rec_labels.txt
+    - /data/parcel/annotations/train_data_v3/rec/train_fuzhou_sampled_p1_rec_labels.txt
     transforms:
     - DecodeImage:
         img_mode: BGR
@@ -121,9 +121,9 @@ Train:
 Eval:
   dataset:
     name: SimpleDataSet
-    data_dir: /data/parcel/annotations/train_data/rec
+    data_dir: /data/parcel/annotations/train_data_v3/rec
     label_file_list:
-    - /data/parcel/annotations/train_data/rec/test_phase_1+2_data_rec_labels.txt
+    - /data/parcel/annotations/train_data_v3/rec/test_fuzhou_sampled_p1_rec_labels.txt
     transforms:
     - DecodeImage:
         img_mode: BGR

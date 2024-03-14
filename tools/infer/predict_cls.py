@@ -72,7 +72,7 @@ class TextClassifier(object):
         padding_im[:, :, 0:resized_w] = resized_image
         return padding_im
 
-    def __call__(self, img_list):
+    def __call__(self, img_list, img_name_list=None):
         img_list = copy.deepcopy(img_list)
         img_num = len(img_list)
         # Calculate the aspect ratio of all text bars
@@ -118,9 +118,12 @@ class TextClassifier(object):
             for rno in range(len(cls_result)):
                 label, score = cls_result[rno]
                 cls_res[indices[beg_img_no + rno]] = [label, score]
-                draw_path = os.path.join(self.draw_img_save_dir, 'cls_vis',
+                if img_name_list:
+                    draw_path = os.path.join(self.draw_img_save_dir, 'cls_vis', img_name_list[indices[beg_img_no + rno]])
+                else:
+                    draw_path = os.path.join(self.draw_img_save_dir, 'cls_vis',
                                          str(beg_img_no + rno) + '_' + label + '_' + str(score) + '.png')
-                # org = img_list[indices[beg_img_no + rno]].copy()
+                org = img_list[indices[beg_img_no + rno]].copy()
                 cv2.imwrite(draw_path.replace('.png', '_org.png'), img_list[indices[beg_img_no + rno]])
                 # cv2.putText(org, label, (50, 50), cv2.FONT_HERSHEY_COMPLEX, 0.05, (255, 0, 0), 1)
                 if '180' in label and score > self.cls_thresh:
@@ -133,8 +136,8 @@ class TextClassifier(object):
                     img_list[indices[beg_img_no + rno]] = cv2.rotate(
                         img_list[indices[beg_img_no + rno]], cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-                # draw = np.hstack([org, img_list[indices[beg_img_no + rno]]])
-                cv2.imwrite(draw_path, img_list[indices[beg_img_no + rno]])
+                draw = np.hstack([org, img_list[indices[beg_img_no + rno]]])
+                cv2.imwrite(draw_path, draw)
         return img_list, cls_res, elapse
 
 
@@ -143,6 +146,7 @@ def main(args):
     text_classifier = TextClassifier(args)
     valid_image_file_list = []
     img_list = []
+    img_name_list = []
     for image_file in image_file_list:
         img, flag, _ = check_and_read(image_file)
         if not flag:
@@ -152,8 +156,9 @@ def main(args):
             continue
         valid_image_file_list.append(image_file)
         img_list.append(img)
+        img_name_list.append(os.path.basename(image_file))
     try:
-        img_list, cls_res, predict_time = text_classifier(img_list)
+        img_list, cls_res, predict_time = text_classifier(img_list, img_name_list)
     except Exception as E:
         logger.info(traceback.format_exc())
         logger.info(E)

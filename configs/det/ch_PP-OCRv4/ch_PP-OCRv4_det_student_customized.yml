@@ -1,18 +1,18 @@
 Global:
   debug: false
   use_gpu: true
-  epoch_num: &epoch_num 100
+  epoch_num: &epoch_num 300
   log_smooth_window: 20
-  print_batch_step: 10
-  save_model_dir: ./output/det_v4
-  save_epoch_step: 1
+  print_batch_step: 50
+  save_model_dir: ./output3/det_2
+  save_epoch_step: 10
   eval_batch_step:
   - 0
   - 3000
   cal_metric_during_train: false
   checkpoints:
   pretrained_model: pretrain/ch_PP-OCRv4_det_train/best_accuracy
-  save_inference_dir: ./output/det_v4
+  save_inference_dir: ./output3/det_2
   use_visualdl: false
   infer_img: train_data/det/phase_1+2_data_det_images_test/phase_1_data/20230221_154751761/20230221142715284_215300_0004772005/TunnelCamera0409Large_0_0.jpg
   save_res_path: ./checkpoints/det_db/predicts_db.txt
@@ -48,7 +48,7 @@ Optimizer:
   beta2: 0.999
   lr:
     name: Cosine
-    learning_rate: 0.0003 #(8*8c)
+    learning_rate: 0.0002 #(8*8c)
     warmup_epoch: 2
   regularizer:
     name: L2
@@ -68,9 +68,9 @@ Metric:
 Train:
   dataset:
     name: SimpleDataSet
-    data_dir: /data/parcel/annotations/train_data/det
+    data_dir: /data/parcel/annotations/train_data_v3/det/
     label_file_list:
-      - /data/parcel/annotations/train_data/det/train_phase_1+2_data_det_labels.txt
+      - /data/parcel/annotations/train_data_v3/det/train_fuzhou_sampled_p1_det_labels.txt
     ratio_list: [1.0]
     transforms:
     - DecodeImage:
@@ -130,15 +130,15 @@ Train:
   loader:
     shuffle: true
     drop_last: false
-    batch_size_per_card: 12
+    batch_size_per_card: 32
     num_workers: 8
 
 Eval:
   dataset:
     name: SimpleDataSet
-    data_dir: /data/parcel/annotations/train_data/det
+    data_dir: /data/parcel/annotations/train_data_v3/det/
     label_file_list:
-      - /data/parcel/annotations/train_data/det/test_phase_1+2_data_det_labels.txt
+      - /data/parcel/annotations/train_data_v3/det/test_fuzhou_sampled_p1_det_labels.txt
     transforms:
     - DecodeImage:
         img_mode: BGR

@@ -98,7 +98,12 @@ def e2e_eval(gt_dir, res_dir, ignore_blank=False):
 
         val_path = os.path.join(res_dir, val_name)
         if not os.path.exists(val_path):
+            val_path = os.path.join(res_dir, val_name.replace('train_phase', 'phase'))
+        if not os.path.exists(val_path):
+            val_path = os.path.join(res_dir, val_name.replace('train_2023', 'train_500_2023'))
+        if not os.path.exists(val_path):
             dt_lines = []
+            print(res_dir, val_name)
         else:
             with open(val_path, encoding='utf-8') as f:
                 dt_lines = [o.strip() for o in f.readlines()]
@@ -115,6 +120,7 @@ def e2e_eval(gt_dir, res_dir, ignore_blank=False):
         dt_match = [False] * len(dts)
         gt_match = [False] * len(gts)
         all_ious = defaultdict(tuple)
+
         for index_gt, gt in enumerate(gts):
             gt_coors = [float(gt_coor) for gt_coor in gt[0:8]]
             gt_poly = polygon_from_str(gt_coors)

@@ -3,7 +3,7 @@ Global:
   epoch_num: 600
   log_smooth_window: 20
   print_batch_step: 10
-  save_model_dir: ./output/pgnet_r50_vd_totaltext/
+  save_model_dir: ./output2/det
   save_epoch_step: 10
   # evaluation is run every 0 iterationss after the 1000th iteration
   eval_batch_step: [ 0, 1000 ]
@@ -15,8 +15,8 @@ Global:
   infer_img:
   infer_visual_type: EN # two mode: EN is for english datasets, CN is for chinese datasets
   valid_set: totaltext # two mode: totaltext valid curved words, partvgg valid non-curved words
-  save_res_path: ./output/pgnet_r50_vd_totaltext/predicts_pgnet.txt
-  character_dict_path: ppocr/utils/ic15_dict.txt
+  save_res_path: ./output/v2_e2e_infer_det/e2e_infer_det.txt
+  character_dict_path: ppocr/utils/en_dict.txt
   character_type: EN
   max_text_length: 50 # the max length in seq
   max_text_nums: 30 # the max seq nums in a pic
@@ -33,7 +33,7 @@ Architecture:
     name: PGFPN
   Head:
     name: PGHead
-    character_dict_path: ppocr/utils/ic15_dict.txt # the same as Global:character_dict_path
+    character_dict_path: ppocr/utils/en_dict.txt # the same as Global:character_dict_path
 
 Loss:
   name: PGLoss
@@ -63,8 +63,8 @@ PostProcess:
 Metric:
   name: E2EMetric
   mode: A   # two ways for eval, A: label from txt,  B: label from gt_mat
-  gt_mat_dir:  ./train_data/total_text/gt  # the dir of gt_mat
-  character_dict_path: ppocr/utils/ic15_dict.txt
+  gt_mat_dir: /data/parcel/annotations/train_data_v2/det/train_phase_1+2_data_det_labels.txt  # the dir of gt_mat
+  character_dict_path: ppocr/utils/en_dict.txt
   main_indicator: f_score_e2e
 
 Train:
