@@ -1,0 +1,96 @@
+Global:
+  debug: false
+  use_gpu: true
+  epoch_num: &epoch_num 8000
+  log_smooth_window: 20
+  print_batch_step: 100
+  save_model_dir: ./output/cls_CLS_MobileNetV3_phase3data-take2
+  save_epoch_step: 100
+  eval_batch_step:
+  - 0
+  - 1000
+  cal_metric_during_train: True
+  # checkpoints: ./output/cls_CLS_MobileNetV3_phase3data-take2/latest
+  # pretrained_model: pretrain/ch_ppocr_mobile_v2.0_cls_train/best_accuracy
+  save_inference_dir: ./output/cls_CLS_MobileNetV3_phase3data-take2
+  use_visualdl: true
+  infer_img: /data/parcel/annotations/cls/finetune/phase_3_images_test/phase_3_data/2023_10_11/20231011-1/2023-10-11T14-23-55_0000000044_camera03_27_gr_315066108913142544_c770da2f-279e-488e-86c1-435eda24bf79_1f80127d-9988-45c5-b478-cfb3d26ec74a.jpg
+  label_list: ['0', '90', '180', '270', '360']
+
+Architecture:
+  model_type: cls
+  algorithm: CLS
+  Transform:
+  Backbone:
+    name: MobileNetV3
+    scale: 0.35
+    model_name: small
+  Neck:
+  Head:
+    name: ClsHead
+    class_dim: 5
+
+Loss:
+  name: ClsLoss
+
+Optimizer:
+  name: Adam
+  beta1: 0.9
+  beta2: 0.999
+  lr:
+    name: Cosine
+    learning_rate: 0.004
+  regularizer:
+    name: 'L2'
+    factor: 0
+
+PostProcess:
+  name: ClsPostProcess
+
+Metric:
+  name: ClsMetric
+  main_indicator: acc
+
+Train:
+  dataset:
+    name: SimpleDataSet
+    data_dir: /data/parcel/annotations/
+    label_file_list:
+      - /data/parcel/annotations/cls/finetune/phase_3_images_train_labels.txt
+    transforms:
+      - DecodeImage: # load image
+          img_mode: BGR
+          channel_first: False
+      - ClsLabelEncode: # Class handling label
+      - BaseDataAugmentation:
+      - RandAugment:
+      - ClsResizeImg:
+          image_shape: [3, 48, 192]
+      - KeepKeys:
+          keep_keys: ['image', 'label'] # dataloader will return list in this order
+  loader:
+    shuffle: True
+    batch_size_per_card: 2048
+    drop_last: True
+    num_workers: 8
+
+Eval:
+  dataset:
+    name: SimpleDataSet
+    data_dir: /data/parcel/annotations/
+    label_file_list:
+      - /data/parcel/annotations/cls/finetune/phase_3_images_test_labels.txt
+    transforms:
+      - DecodeImage: # load image
+          img_mode: BGR
+          channel_first: False
+      - ClsLabelEncode: # Class handling label
+      - ClsResizeImg:
+          image_shape: [3, 48, 192]
+      - KeepKeys:
+          keep_keys: ['image', 'label'] # dataloader will return list in this order
+  loader:
+    shuffle: False
+    drop_last: False
+    batch_size_per_card: 512
+    num_workers: 4

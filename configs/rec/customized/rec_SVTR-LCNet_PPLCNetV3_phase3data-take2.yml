@@ -1,26 +1,27 @@
 Global:
   debug: false
   use_gpu: true
-  epoch_num: 100
+  epoch_num: &epoch_num 4000
   log_smooth_window: 20
-  print_batch_step: 10
-  save_model_dir: ./output/rec_v4
-  save_epoch_step: 10
+  print_batch_step: 100
+  save_model_dir: ./output/rec_SVTR-LCNet_PPLCNetV3_phase3data-take2
+  save_epoch_step: 100
   eval_batch_step:
   - 0
   - 1000
   cal_metric_during_train: true
+  # checkpoints: ./output/rec_SVTR-LCNet_PPLCNetV3_phase3data-take2/latest
   pretrained_model: pretrain/en_PP-OCRv4_rec_train/best_accuracy
-  checkpoints: null
-  save_inference_dir: ./output/rec_v4
-  use_visualdl: false
-  infer_img: train_data/det/phase_1+2_data_det_images_test/phase_1_data/20230221_154751761/20230221142715284_215300_0004772005/TunnelCamera0409Large_0_0.jpg
+  save_inference_dir: ./output/rec_SVTR-LCNet_PPLCNetV3_phase3data-take2
+  use_visualdl: true
+  infer_img: /data/parcel/annotations/rec/finetune/phase_3_images_test/phase_3_data/2023_10_12/20231012-2/2023-10-12T18-27-15_0000000520_camera06_26_br_315066324240320259_a0a8c29a-6bdb-4517-b545-657507c0718a_42a92252-4f2b-491d-b5cd-470ecdabaad3.jpg
   character_dict_path: ppocr/utils/en_dict.txt
-  max_text_length: 25
+  max_text_length: &max_text_length 25
   infer_mode: false
   use_space_char: true
-  distributed: true
-  save_res_path: ./output/rec/predicts_ppocrv4.txt
+  save_res_path: ./checkpoints/rec/predicts.txt
+
+
 Optimizer:
   name: Adam
   beta1: 0.9
@@ -32,38 +33,41 @@ Optimizer:
   regularizer:
     name: L2
     factor: 3.0e-05
+
+
 Architecture:
   model_type: rec
   algorithm: SVTR_LCNet
-  Transform: null
+  Transform:
   Backbone:
     name: PPLCNetV3
     scale: 0.95
   Head:
     name: MultiHead
     head_list:
-    - CTCHead:
-        Neck:
-          name: svtr
-          dims: 120
-          depth: 2
-          hidden_dims: 120
-          kernel_size:
-          - 1
-          - 3
-          use_guide: true
-        Head:
-          fc_decay: 1.0e-05
-    - NRTRHead:
-        nrtr_dim: 384
-        max_text_length: 25
+      - CTCHead:
+          Neck:
+            name: svtr
+            dims: 120
+            depth: 2
+            hidden_dims: 120
+            kernel_size: [1, 3]
+            use_guide: True
+          Head:
+            fc_decay: 0.00001
+      - NRTRHead:
+          nrtr_dim: 384
+          max_text_length: *max_text_length
+
 Loss:
   name: MultiLoss
   loss_config_list:
-  - CTCLoss: null
-  - NRTRLoss: null
+    - CTCLoss:
+    - NRTRLoss:
+
 PostProcess:
   name: CTCLabelDecode
+
 Metric:
   name: RecMetric
   main_indicator: acc
@@ -72,10 +76,12 @@ Train:
   dataset:
     name: MultiScaleDataSet
     ds_width: false
-    data_dir: ./train_data/
+    data_dir: /data/parcel/annotations/
     ext_op_transform_idx: 1
     label_file_list:
-    - /data/parcel/annotations/train_data/rec/train_phase_1+2_data_rec_labels.txt
+      - /data/parcel/annotations/rec/finetune/phase_3_images_train_labels.txt
+      - /data/parcel/annotations/rec/general/mjsynth_train_labels.txt
+    ratio_list: [1.0, 0.001]
     transforms:
     - DecodeImage:
         img_mode: BGR
@@ -83,12 +89,9 @@ Train:
     - RecConAug:
         prob: 0.5
         ext_data_num: 2
-        image_shape:
-        - 48
-        - 320
-        - 3
-        max_text_length: 25
-    - RecAug: null
+        image_shape: [48, 320, 3]
+        max_text_length: *max_text_length
+    - RecAug:
     - MultiLabelEncode:
         gtc_encode: NRTRLabelEncode
     - KeepKeys:
@@ -100,30 +103,22 @@ Train:
         - valid_ratio
   sampler:
     name: MultiScaleSampler
-    scales:
-    - - 320
-      - 32
-    - - 320
-      - 48
-    - - 320
-      - 64
-    first_bs: 96
+    scales: [[320, 32], [320, 48], [320, 64]]
+    first_bs: &bs 128
     fix_bs: false
-    divided_factor:
-    - 8
-    - 16
-    is_training: true
+    divided_factor: [8, 16] # w, h
+    is_training: True
   loader:
     shuffle: true
-    batch_size_per_card: 128
+    batch_size_per_card: *bs
     drop_last: true
     num_workers: 8
 Eval:
   dataset:
     name: SimpleDataSet
-    data_dir: /data/parcel/annotations/train_data/rec
+    data_dir: /data/parcel/annotations/
     label_file_list:
-    - /data/parcel/annotations/train_data/rec/test_phase_1+2_data_rec_labels.txt
+      - /data/parcel/annotations/rec/finetune/phase_3_images_test_labels.txt
     transforms:
     - DecodeImage:
         img_mode: BGR
@@ -131,10 +126,7 @@ Eval:
     - MultiLabelEncode:
         gtc_encode: NRTRLabelEncode
     - RecResizeImg:
-        image_shape:
-        - 3
-        - 48
-        - 320
+        image_shape: [3, 48, 320]
     - KeepKeys:
         keep_keys:
         - image
@@ -147,4 +139,3 @@ Eval:
     drop_last: false
     batch_size_per_card: 128
     num_workers: 4
-profiler_options: null
